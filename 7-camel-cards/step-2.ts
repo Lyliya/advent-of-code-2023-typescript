@@ -54,11 +54,11 @@ for (const line of splits) {
           : HAND_TYPE.TWO;
       break;
     case 2:
-      const firstValue = Object.values(labels).sort((a, b) => b - a)[0];
+      const firstValue = Object.values({ ...labels, J: -1 }).sort(
+        (a, b) => b - a
+      )[0];
       type =
-        firstValue! + numberOfJoker === 1 || firstValue! + numberOfJoker === 4
-          ? HAND_TYPE.FOUR
-          : HAND_TYPE.FULL;
+        firstValue! + numberOfJoker === 4 ? HAND_TYPE.FOUR : HAND_TYPE.FULL;
       break;
     case 1:
       type = HAND_TYPE.FIVE;
@@ -98,10 +98,16 @@ const sortedHands = hands.sort((a, b) => {
   return compareString(a.hand, b.hand);
 });
 
-console.table(sortedHands);
+// console.table(sortedHands.map((e) => ({ ...e, type: HAND_TYPE[e.type] })));
+
+// fs.writeFileSync(
+//   "myTable.json",
+//   JSON.stringify(sortedHands.map((e) => ({ ...e, type: HAND_TYPE[e.type] })))
+// );
 
 const result = sortedHands.reduce((acc, val, idx) => {
   return (acc += val.bid * (idx + 1));
 }, 0);
 
-console.log(result);
+// Should be 250577259
+console.log(result, `off by ${250577259 - result}`);
