@@ -36,10 +36,11 @@ for (const line of splits) {
   const numberOfLabels = Object.keys(labels).length;
   let type: HAND_TYPE | undefined = undefined;
 
-  const jokers = Object.entries(labels).find(([key, value]) => key === "J");
+  const jokers = Object.entries(labels).find(([key]) => key === "J");
   const numberOfJoker = jokers ? jokers[1] : 0;
+  const check = numberOfLabels - (numberOfJoker > 0 ? 1 : 0) || 1;
 
-  switch (numberOfLabels) {
+  switch (check) {
     case 5:
       type = HAND_TYPE.HIGH;
       break;
@@ -48,14 +49,16 @@ for (const line of splits) {
       break;
     case 3:
       type =
-        Object.values(labels).filter((e) => e === 3).length > 0
+        Object.values(labels).filter((e) => e + numberOfJoker === 3).length > 0
           ? HAND_TYPE.THREE
           : HAND_TYPE.TWO;
       break;
     case 2:
-      const firstValue = Object.values(labels)[0];
+      const firstValue = Object.values(labels).sort((a, b) => b - a)[0];
       type =
-        firstValue === 1 || firstValue === 4 ? HAND_TYPE.FOUR : HAND_TYPE.FULL;
+        firstValue! + numberOfJoker === 1 || firstValue! + numberOfJoker === 4
+          ? HAND_TYPE.FOUR
+          : HAND_TYPE.FULL;
       break;
     case 1:
       type = HAND_TYPE.FIVE;
@@ -94,6 +97,8 @@ const sortedHands = hands.sort((a, b) => {
   if (b.type !== a.type) return a.type - b.type;
   return compareString(a.hand, b.hand);
 });
+
+console.table(sortedHands);
 
 const result = sortedHands.reduce((acc, val, idx) => {
   return (acc += val.bid * (idx + 1));
